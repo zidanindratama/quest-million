@@ -3,7 +3,7 @@
 import { Loader2Icon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { QuizBoard } from "@/components/quiz/quiz-board";
 import { createSession, emptyProfile, loadQuestions, playSound, profileKey, safeJsonParse, sessionKey, timeLimit } from "@/components/quiz/quiz-data";
@@ -13,12 +13,15 @@ import type { OptionKey, PlayerProfile, QuizQuestion, QuizSession } from "@/comp
 
 export function QuizPlayPage() {
   const router = useRouter();
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
   const [profile, setProfile] = useState<PlayerProfile>(emptyProfile());
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [session, setSession] = useState<QuizSession | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   const currentQuestion = session?.questions[session.currentIndex] ?? null;
+  const bgmPhase = session?.phase;
+  const bgmMuted = session?.muted;
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -52,6 +55,43 @@ export function QuizPlayPage() {
   }, [hydrated, session]);
 
   useEffect(() => {
+    return () => {
+      bgmRef.current?.pause();
+      bgmRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!bgmPhase) {
+      bgmRef.current?.pause();
+      return;
+    }
+
+    if (!bgmRef.current) {
+      const audio = new Audio("/audio/bgm.mp3");
+      audio.loop = true;
+      audio.volume = 0.18;
+      bgmRef.current = audio;
+    }
+
+    const audio = bgmRef.current;
+    const startBgm = () => void audio.play().catch(() => undefined);
+    const shouldPlay = !bgmMuted && bgmPhase !== "won" && bgmPhase !== "lost";
+    if (shouldPlay) {
+      startBgm();
+      window.addEventListener("pointerdown", startBgm);
+      window.addEventListener("keydown", startBgm);
+
+      return () => {
+        window.removeEventListener("pointerdown", startBgm);
+        window.removeEventListener("keydown", startBgm);
+      };
+    }
+
+    audio.pause();
+  }, [bgmMuted, bgmPhase]);
+
+  useEffect(() => {
     if (!session || session.phase !== "playing") return;
 
     const timer = window.setTimeout(() => {
@@ -63,7 +103,10 @@ export function QuizPlayPage() {
           return { ...current, timeLeft: 0, selectedOption: null, answerState: "timeout", phase: "explanation" };
         }
 
-        return { ...current, timeLeft: current.timeLeft - 1 };
+        const nextTimeLeft = current.timeLeft - 1;
+        if (nextTimeLeft <= 8) playSound("/audio/sfx-tick.mp3", current.muted);
+
+        return { ...current, timeLeft: nextTimeLeft };
       });
     }, 1000);
 

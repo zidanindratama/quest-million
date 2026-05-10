@@ -21,7 +21,7 @@ export function HostControlSection() {
             <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-start">
               <div className="border border-[color:var(--qm-accent-line)] bg-[var(--qm-accent-soft)] p-5">
                 <p className="text-[0.65rem] font-black uppercase tracking-[0.32em] text-[var(--qm-accent)]">teman virtual</p>
-                <p className="mt-3 text-4xl font-black leading-[0.95] tracking-[-0.08em] sm:text-6xl">Aku condong ke A, tapi keputusan terakhir tetap di kamu.</p>
+                <p className="mt-3 text-4xl font-black leading-[0.95] tracking-[-0.08em] sm:text-6xl">Teman virtual bisa membantu, tapi tidak selalu memberi petunjuk.</p>
               </div>
               <div className="grid grid-cols-2 gap-2 sm:w-44">
                 {['Q04', '18s', 'CALL', '50%'].map((item) => (

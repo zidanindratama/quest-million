@@ -1,0 +1,11 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">QuestMillion QM Icon</title>
+  <desc id="desc">Square gold QuestMillion icon with dark geometric QM monogram.</desc>
+  <rect width="512" height="512" fill="#D9A441" />
+  <path d="M24 24H488V488H24V24Z" stroke="#171324" stroke-width="28" />
+  <path d="M62 62H450V450H62V62Z" stroke="#F3C95F" stroke-width="10" opacity="0.55" />
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M94 150H236V292H94V150ZM132 188V254H198V188H132Z" fill="#171324" />
+  <path d="M180 272H226L258 336H212L180 272Z" fill="#171324" />
+  <path d="M270 150H312L358 224L404 150H446V336H398V236L370 282H346L318 236V336H270V150Z" fill="#171324" />
+  <path d="M94 368H446V406H94V368Z" fill="#171324" />
+</svg>
