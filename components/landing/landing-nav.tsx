@@ -3,9 +3,10 @@
 import { MenuIcon, MoonIcon, SunIcon, XIcon } from "lucide-react";
 import { AnimatePresence, motion, useAnimationControls, useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 
 const links = [
   { label: "Alur kuis", href: "#experience" },
@@ -33,16 +34,7 @@ export function LandingNav() {
   const menuExitDuration = shouldReduceMotion ? 0.01 : 0.78;
   const menuItemDuration = shouldReduceMotion ? 0.01 : 0.56;
 
-  useEffect(() => {
-    if (!open) return;
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [open]);
+  useBodyScrollLock(open);
 
   async function toggleTheme() {
     if (isSwitchingTheme) return;

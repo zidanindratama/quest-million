@@ -10,6 +10,7 @@ import { createSession, emptyProfile, loadQuestions, playSound, profileKey, safe
 import { ExplanationModal, PhoneModal, ResultOverlay } from "@/components/quiz/quiz-modals";
 import { QuizShell } from "@/components/quiz/quiz-shell";
 import type { OptionKey, PlayerProfile, QuizQuestion, QuizSession } from "@/components/quiz/types";
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 
 export function QuizPlayPage() {
   const router = useRouter();
@@ -18,10 +19,16 @@ export function QuizPlayPage() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [session, setSession] = useState<QuizSession | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [dismissedResultKey, setDismissedResultKey] = useState<string | null>(null);
 
   const currentQuestion = session?.questions[session.currentIndex] ?? null;
   const bgmPhase = session?.phase;
   const bgmMuted = session?.muted;
+  const isTerminal = session?.phase === "won" || session?.phase === "lost";
+  const resultKey = isTerminal && session ? `${session.startedAt}:${session.phase}` : null;
+  const resultOverlayOpen = resultKey !== null && dismissedResultKey !== resultKey;
+
+  useBodyScrollLock(session?.phase === "explanation" || session?.phase === "phone" || (isTerminal && resultOverlayOpen));
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -186,6 +193,10 @@ export function QuizPlayPage() {
     setSession((current) => (current ? { ...current, muted: !current.muted } : current));
   }
 
+  function closeResultOverlay() {
+    if (resultKey) setDismissedResultKey(resultKey);
+  }
+
   if (!hydrated) {
     return (
       <QuizShell>
@@ -217,7 +228,7 @@ export function QuizPlayPage() {
       <QuizBoard session={session} profile={profile} question={currentQuestion} onAnswer={handleAnswer} onPhone={handlePhone} onClearData={clearSavedData} />
       <ExplanationModal session={session} question={currentQuestion} onContinue={handleContinue} />
       <PhoneModal session={session} question={currentQuestion} onReturn={() => setSession({ ...session, phase: "playing" })} />
-      <ResultOverlay session={session} profile={profile} onRestart={restartFresh} onClearData={clearSavedData} />
+      <ResultOverlay session={session} profile={profile} open={resultOverlayOpen} onClose={closeResultOverlay} onRestart={restartFresh} onClearData={clearSavedData} />
     </QuizShell>
   );
 }

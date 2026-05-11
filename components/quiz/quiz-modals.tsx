@@ -49,7 +49,15 @@ export function PhoneModal({ session, question, onReturn }: { session: QuizSessi
     <AnimatePresence>
       {session.phase === "phone" ? (
         <motion.div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <motion.div className="w-full max-w-xl border border-[color:var(--qm-line-strong)] bg-[var(--qm-panel-solid)] p-5 shadow-2xl shadow-[var(--qm-shadow)] sm:p-7" initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -18, opacity: 0 }} transition={{ duration: 0.42, ease: easeOut }}>
+          <motion.div className="relative w-full max-w-lg border border-[color:var(--qm-line-strong)] bg-[var(--qm-panel-solid)] p-5 shadow-2xl shadow-[var(--qm-shadow)] sm:p-6" initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -18, opacity: 0 }} transition={{ duration: 0.42, ease: easeOut }}>
+            <button
+              type="button"
+              aria-label="Close GIF popup"
+              onClick={onReturn}
+              className="absolute right-3 top-3 grid size-9 cursor-pointer place-items-center border border-[color:var(--qm-line)] bg-[var(--qm-panel)] text-[var(--qm-fg)] transition-colors duration-200 hover:bg-[var(--qm-accent-soft)] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[color-mix(in_oklch,var(--qm-accent)_45%,transparent)]"
+            >
+              <XIcon />
+            </button>
             <div className="flex items-center gap-4">
               <div className="grid size-12 place-items-center bg-[var(--qm-violet)] text-white">
                 <HeadphonesIcon />
@@ -59,7 +67,7 @@ export function PhoneModal({ session, question, onReturn }: { session: QuizSessi
                 <h2 className="mt-2 text-3xl font-black tracking-[-0.06em] text-[var(--qm-fg-strong)]">Bantuan teman</h2>
               </div>
             </div>
-            <div className="mt-5">
+            <div className="mx-auto mt-5 w-full max-w-72 sm:max-w-80">
               <GifFrame
                 label={session.phoneState === "calling" ? "Menghubungi teman" : session.phoneState === "success" ? "Bantuan berhasil" : "Bantuan gagal"}
                 src={session.phoneState === "calling" ? "/gifs/phone-call-placeholder.gif" : session.phoneState === "success" ? "/gifs/phone-success-placeholder.gif" : "/gifs/phone-fail-placeholder.gif"}
@@ -87,19 +95,43 @@ export function PhoneModal({ session, question, onReturn }: { session: QuizSessi
   );
 }
 
-export function ResultOverlay({ session, profile, onRestart, onClearData }: { session: QuizSession; profile: PlayerProfile; onRestart: () => void; onClearData: () => void }) {
+export function ResultOverlay({
+  session,
+  profile,
+  open,
+  onClose,
+  onRestart,
+  onClearData,
+}: {
+  session: QuizSession;
+  profile: PlayerProfile;
+  open: boolean;
+  onClose: () => void;
+  onRestart: () => void;
+  onClearData: () => void;
+}) {
   const isTerminal = session.phase === "won" || session.phase === "lost";
 
   return (
     <AnimatePresence mode="wait">
-      {isTerminal ? (
+      {isTerminal && open ? (
         <motion.div className="fixed inset-0 z-40 grid place-items-center bg-[var(--qm-bg)] p-4" initial={{ clipPath: "inset(0% 0% 100% 0%)" }} animate={{ clipPath: "inset(0% 0% 0% 0%)" }} exit={{ opacity: 0 }} transition={{ duration: 0.7, ease: easeOut }}>
           <div className="qm-grid-bg absolute inset-0 bg-[size:72px_72px] opacity-80" />
-          <motion.div className="relative z-10 grid w-full max-w-5xl gap-6 border border-[color:var(--qm-line-strong)] bg-[color-mix(in_oklch,var(--qm-panel-solid)_86%,transparent)] p-5 shadow-2xl shadow-[var(--qm-shadow)] backdrop-blur-2xl sm:p-8 lg:grid-cols-[0.9fr_1.1fr]" initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.52, ease: easeOut, delay: 0.12 }}>
-            <GifFrame label={session.phase === "won" ? "GIF menang" : "GIF kalah"} src={session.phase === "won" ? "/gifs/win-placeholder.gif" : "/gifs/lose-placeholder.gif"} tone={session.phase === "won" ? "gold" : "danger"} />
+          <motion.div className="relative z-10 grid w-full max-w-3xl gap-5 border border-[color:var(--qm-line-strong)] bg-[color-mix(in_oklch,var(--qm-panel-solid)_86%,transparent)] p-5 shadow-2xl shadow-[var(--qm-shadow)] backdrop-blur-2xl sm:p-7 lg:grid-cols-[16rem_1fr]" initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.52, ease: easeOut, delay: 0.12 }}>
+            <button
+              type="button"
+              aria-label="Close GIF popup"
+              onClick={onClose}
+              className="absolute right-3 top-3 z-20 grid size-9 cursor-pointer place-items-center border border-[color:var(--qm-line)] bg-[var(--qm-panel)] text-[var(--qm-fg)] transition-colors duration-200 hover:bg-[var(--qm-accent-soft)] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[color-mix(in_oklch,var(--qm-accent)_45%,transparent)]"
+            >
+              <XIcon />
+            </button>
+            <div className="mx-auto w-full max-w-64 lg:max-w-none">
+              <GifFrame label={session.phase === "won" ? "GIF menang" : "GIF kalah"} src={session.phase === "won" ? "/gifs/win-placeholder.gif" : "/gifs/lose-placeholder.gif"} tone={session.phase === "won" ? "gold" : "danger"} />
+            </div>
             <div className="flex flex-col justify-center">
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[var(--qm-accent)]">{session.phase === "won" ? "victory" : "game over"}</p>
-              <h2 className="mt-4 text-balance text-5xl font-black leading-[0.9] tracking-[-0.08em] text-[var(--qm-fg-strong)] sm:text-7xl">
+              <h2 className="mt-4 text-balance pr-8 text-4xl font-black leading-[0.9] tracking-[-0.08em] text-[var(--qm-fg-strong)] sm:text-6xl">
                 {session.phase === "won" ? `Mantap, ${profile.name || "Pemain"}.` : "Kursi panas selesai."}
               </h2>
               <p className="mt-5 text-base leading-8 text-[var(--qm-muted)]">
